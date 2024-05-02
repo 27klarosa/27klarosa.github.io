@@ -1,0 +1,30 @@
+ul {
+    margin: 10px 500px;
+    text-align: center;
+    border: solid black 2px;
+    background-color: blueviolet;
+    padding: 10px;
+}
+
+li {
+    text-align: center;
+    display: inline;
+    padding: 0px 100px 0px 100px;
+}
+
+h1 {
+    text-align: center;
+}
+
+img {
+    float: left;
+    height:"60px";
+    width:"60px";
+}
+div {
+    border:solid black 1px;
+    margin: 10px 500px;
+    padding: 10px 10px 30px 10px;
+}
+p {display: inline}
+#content {width: 70%; background-color: aqua; margin: auto;}
