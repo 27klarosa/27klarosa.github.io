@@ -1,34 +1,35 @@
-#body {
-    background-color: black;
+body {
+    background-color: hwb(240 14% 48%);
+    overflow-y: scroll;
+    margin: 0;
 }
 
-#page {
-    width: 70%;
-    background-color: hsl(240, 24%, 37%);
+#maindiv {
+    background-color: rgba(120, 193, 228, 0.877);
+    width: 500px;
+    height: 700px;
+    display: inline-flex;
+    border: 5px solid black;
     margin: auto;
-    padding-bottom: 200px;
 }
 
-#parentbox {
-    justify-content: space-evenly;
-    display: flex;
+header {
+    position: fixed;
+    background-color: white;
+    width: 100%;
+    height: 90px;
+    border: 5px solid black;
+    display: block;
+    margin: 0;
 }
 
-.boxes {
-    width: 35%;
-    padding-bottom: 100px;
-    background-color: blue;
-    border: 3px solid black;
+#title {
+    font-size: 50px;
+    margin: 0;
 }
 
-img {
-    width: auto;
-    height: 340px;
-}
-
-h1 {
-    font-size: 60px;
+#titlebox {
     text-align: center;
+    margin: auto;
+    padding-top: 10px;
 }
-
-
