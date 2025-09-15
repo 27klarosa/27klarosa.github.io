@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<canvas id="screen" style="width: 100%; height: 100%"/>
+
+<script>
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+
+    //FPS counter
+    const fps = 60;
+    const cycleDelay = Math.floor(1000 / fps);
+    var oldCycleTime = 0;
+    var cycleCount = 0;
+    var fps_rate = 'calculating...';
+
+    //screen
+    const WIDTH = 300, HALF_WIDTH = 150;
+    const HEIGHT = 200, HALF_HEIGHT = 100;
+
+
+    //game loop
+    function gameLoop() {
+        //fps counter
+        cycleCount++;
+        if (cycleCount >= fps) cycleCount = 0;
+        var startTime = Date.now();
+        var cycleTime = startTime - oldCycleTime;
+        oldCycleTime = startTime;
+        if (cycleCount % 60 == 0) fps_rate = Math.floor(1000 / cycleTime);
+
+        //resize
+        canvas.width = window.innerWidth * 0.3;
+        canvas.height = window.innerHeight * 0.3;
+
+        //update
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = 'white';
+        context.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
+
+        //test fps thing
+        //context.fillStyle = 'white';
+        //context.fillRect(1 * 32, 30, 32, 32);
+        //if (1 >= 32) i = 0;
+        //i++;
+
+        //looping the loop 
+        setTimeout(gameLoop, cycleDelay);
+
+        //render fps
+        context.fillStyle = 'white';
+        context.font = '10px Arial';
+        context.fillText('FPS:' + fps_rate, 0, 20)
+    } window.onload() = function() { gameLoop(); }
+
+</script>
+
+</html>
