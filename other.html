@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="other.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+    <style></style>
 </head>
-
-<canvas id="screen" style="width: 100%; height: 100%"/>
-
+<body>
+<canvas id="screen"></canvas>
+</body>
 <script>
     const canvas = document.getElementById('screen');
     const ctx = canvas.getContext('2d');
@@ -39,10 +42,10 @@
         canvas.height = window.innerHeight * 0.3;
 
         //update
-        context.fillStyle = 'black';
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.fillStyle = 'white';
-        context.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // context.fillStyle = 'white';
+        // context.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
 
         //test fps thing
         //context.fillStyle = 'white';
@@ -54,10 +57,10 @@
         setTimeout(gameLoop, cycleDelay);
 
         //render fps
-        context.fillStyle = 'white';
-        context.font = '10px Arial';
-        context.fillText('FPS:' + fps_rate, 0, 20)
-    } window.onload() = function() { gameLoop(); }
+        ctx.fillStyle = 'white';
+        ctx.font = '30px Arial';
+        ctx.fillText('FPS:' + fps_rate, 0, 40)
+    } window.onload = function() { gameLoop(); }
 
 </script>
 
