@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    
 </head>
 
 <canvas id="screen"></canvas>
@@ -20,9 +21,34 @@
     var cycleCount = 0;
     var fps_rate = 'calculating...';
 
+    //map
+    const MAP_SIZE = 16;
+    const MAP_SCALE = 10;
+    const MAP_RANGE = MAP_SIZE * MAP_SCALE;
+    const MAP_SPEED = (MAP_SCALE / 2) / 10;
+    var MAP = [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    ]
+
+
     //screen settings for later
-    const WIDTH = 300, HALF_WIDTH = 150;
-    const HEIGHT = 200, HALF_HEIGHT = 100;
+    const WIDTH = 700, HALF_WIDTH = 350;
+    const HEIGHT = 500, HALF_HEIGHT = 250;
 
     //test variables
     let i = 0;
@@ -43,27 +69,47 @@
         canvas.height = window.innerHeight;
 
         //update
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = 'Black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'White';
+        ctx.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
 
-        <!---->
-        //test fps thing
+        //do map
+        for (var row = 0; row < MAP_SIZE; row++) {
+             for (var col = 0; col < MAP_SIZE; col++) {
+                var square = row * MAP_SIZE + col;
+                if (MAP[square] == 1) {
+                    ctx.fillStyle = '#555';
+                    ctx.fillRect(Math.floor(canvas.width / 2 - MAP_RANGE / 2) + col * MAP_SCALE, 
+                                 Math.floor(canvas.height / 2 - MAP_RANGE / 2) + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+                } else {
+                    ctx.fillStyle = '#aaa';
+                    ctx.fillRect(Math.floor(canvas.width / 2 - MAP_RANGE / 2) + col * MAP_SCALE, 
+                                 Math.floor(canvas.height / 2 - MAP_RANGE / 2) + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+                }
+             }
+        }        
+
+        
+        //render fps
+        ctx.fillStyle = 'white';
+        ctx.font = '30px Arial';
+        ctx.fillText('FPS:' + fps_rate, 0, 40)
+        
+        /*
+        test fps thing
         ctx.clearRect( preI * 30, 30, 32, 32);
         ctx.fillStyle = 'white';
         ctx.fillRect(i * 30, 30, 32, 32);
         preI = i;
         i++;
         if (i >= 32) i = 0;
+        */
 
         //looping the ???
         setTimeout(gameLoop, cycleDelay);
-
-        //render fps
-        ctx.fillStyle = 'white';
-        ctx.font = '30px Arial';
-        ctx.fillText('FPS:' + fps_rate, 0, 40)
     } 
-    requestAnimationFrame(gameLoop);
+    gameLoop();
 
 </script>
 </html>
