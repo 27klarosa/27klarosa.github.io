@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link rel="stylesheet" href="other.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    
+
 </head>
 
 <canvas id="screen"></canvas>
@@ -45,6 +46,10 @@
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]
 
+    //player
+    var playerX = MAP_SCALE + 20
+    var playerY = MAP_SCALE + 20
+    var playerAngle = Math.PI / 3
 
     //screen settings for later
     const WIDTH = 700, HALF_WIDTH = 350;
@@ -75,27 +80,28 @@
         ctx.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
 
         //do map
+        var mapOffsetX = Math.floor(canvas.width / 2 - MAP_RANGE / 2)
+        var mapOffsetY = Math.floor(canvas.height / 2 - MAP_RANGE / 2)
+
         for (var row = 0; row < MAP_SIZE; row++) {
-             for (var col = 0; col < MAP_SIZE; col++) {
+            for (var col = 0; col < MAP_SIZE; col++) {
                 var square = row * MAP_SIZE + col;
                 if (MAP[square] == 1) {
                     ctx.fillStyle = '#555';
-                    ctx.fillRect(Math.floor(canvas.width / 2 - MAP_RANGE / 2) + col * MAP_SCALE, 
-                                 Math.floor(canvas.height / 2 - MAP_RANGE / 2) + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+                    ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
                 } else {
                     ctx.fillStyle = '#aaa';
-                    ctx.fillRect(Math.floor(canvas.width / 2 - MAP_RANGE / 2) + col * MAP_SCALE, 
-                                 Math.floor(canvas.height / 2 - MAP_RANGE / 2) + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+                    ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
                 }
-             }
-        }        
+            }
+        }
 
-        
+
         //render fps
         ctx.fillStyle = 'white';
         ctx.font = '30px Arial';
         ctx.fillText('FPS:' + fps_rate, 0, 40)
-        
+
         /*
         test fps thing
         ctx.clearRect( preI * 30, 30, 32, 32);
@@ -108,8 +114,9 @@
 
         //looping the ???
         setTimeout(gameLoop, cycleDelay);
-    } 
+    }
     gameLoop();
 
 </script>
+
 </html>
