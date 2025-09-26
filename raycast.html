@@ -32,7 +32,7 @@
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -51,9 +51,12 @@
     var playerY = MAP_SCALE + 20
     var playerAngle = Math.PI / 3
 
+    //camera
+    const DOUBLE_PI = Math.PI * 2;
+
     //screen settings for later
-    const WIDTH = 700, HALF_WIDTH = 350;
-    const HEIGHT = 500, HALF_HEIGHT = 250;
+    const WIDTH = 1050, HALF_WIDTH = WIDTH / 2;
+    const HEIGHT = 750, HALF_HEIGHT = HEIGHT / 2;
 
     //test variables
     let i = 0;
@@ -79,7 +82,7 @@
         ctx.fillStyle = 'White';
         ctx.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
 
-        //do map
+        //draw map
         var mapOffsetX = Math.floor(canvas.width / 2 - MAP_RANGE / 2)
         var mapOffsetY = Math.floor(canvas.height / 2 - MAP_RANGE / 2)
 
@@ -95,6 +98,20 @@
                 }
             }
         }
+        //draw player
+        var playerMapX = playerX + mapOffsetX;
+        var playerMapY = playerY + mapOffsetY;
+
+        ctx.fillStyle = 'red';
+        ctx.beginPath();
+        ctx.arc(playerMapX, playerMapY, 3, 0, DOUBLE_PI);
+        ctx.fill();
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(playerMapX, playerMapY);
+        ctx.lineTo(playerMapX + Math.sin(playerAngle) * 10, playerMapY + Math.cos(playerAngle) * 10);
+        ctx.stroke();
 
 
         //render fps
