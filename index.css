@@ -1,6 +1,7 @@
 body {
     background-color: hwb(240 14% 48%);
     overflow-y: scroll;
+    overflow-x: hidden;
     margin: 0;
 }
 
@@ -20,14 +21,12 @@ header {
     border: 5px solid black;
     display: block;
     margin: 0;
+    justify-content: center;
 }
 
 #title {
     font-size: 50px;
     margin: 0;
-}
-
-#titlebox {
     text-align: center;
     margin: auto;
     padding-top: 10px;
