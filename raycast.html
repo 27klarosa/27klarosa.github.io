@@ -32,12 +32,12 @@
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -50,15 +50,41 @@
     var playerX = MAP_SCALE + 20
     var playerY = MAP_SCALE + 20
     var playerAngle = Math.PI / 3
+    var playerMoveX = 0
+    var playerMoveY = 0
+    var playerMoveAngle = 0
+
+    //user input
+    document.onkeydown = function (event) {
+        console.log(event.keyCode);
+        switch (event.keyCode) {
+            //
+            case 40: playerMoveX = -1; playerMoveY = -1; break;
+            case 38: playerMoveX = +1; playerMoveY = +1; break;
+            case 37: playerMoveAngle = 1; break;
+            case 39: playerMoveAngle = -1; break;
+        }
+    }
+
+    document.onkeyup = function (event) {
+        switch (event.keyCode) {
+            //
+            case 40: playerMoveX = 0; playerMoveY = 0; break;
+            case 38: playerMoveX = 0; playerMoveY = 0; break;
+            case 37: playerMoveAngle = 0; break;
+            case 39: playerMoveAngle = 0; break;
+        }
+    }
+
 
     //camera
     const DOUBLE_PI = Math.PI * 2;
 
-    //screen settings for later
-    const WIDTH = 1050, HALF_WIDTH = WIDTH / 2;
-    const HEIGHT = 750, HALF_HEIGHT = HEIGHT / 2;
+    //screen settings
+    const WIDTH = 800, HALF_WIDTH = WIDTH / 2;
+    const HEIGHT = 550, HALF_HEIGHT = HEIGHT / 2;
 
-    //test variables
+    //test variables for testing
     let i = 0;
     let preI = 0;
 
@@ -86,6 +112,81 @@
         var mapOffsetX = Math.floor(canvas.width / 2 - MAP_RANGE / 2)
         var mapOffsetY = Math.floor(canvas.height / 2 - MAP_RANGE / 2)
 
+        //move player
+        //and more
+        var playerOffsetX = Math.sin(playerAngle) * MAP_SPEED
+        var playerOffsetY = Math.cos(playerAngle) * MAP_SPEED
+
+        // future position
+        var nextX = playerX + playerOffsetX * playerMoveX;
+        var nextY = playerY + playerOffsetY * playerMoveY;
+
+        // X axis 
+        let colX = Math.floor(nextX / MAP_SCALE);
+        let rowX = Math.floor(playerY / MAP_SCALE);
+        let indexX = rowX * MAP_SIZE + colX;
+        if (MAP[indexX] === 0) playerX = nextX;
+
+        // Y axis
+        let colY = Math.floor(playerX / MAP_SCALE);
+        let rowY = Math.floor(nextY / MAP_SCALE);
+        let indexY = rowY * MAP_SIZE + colY;
+        if (MAP[indexY] === 0) playerY = nextY;
+
+        /*
+        //option1
+        let turnSpeed = 0;
+        const turnAccel = 0.002;
+        const turnFriction = 0.9;
+        let lastKeyTime = 0;
+        let fastTurn = false;
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                let now = performance.now();
+                if (now - lastKeyTime < 250) {
+                    fastTurn = true; // double tap detected
+                }
+                lastKeyTime = now;
+            }
+        });
+
+        function updateRotation(leftKey, rightKey) {
+            if (leftKey) turnSpeed += turnAccel * (fastTurn ? 3 : 1);
+            if (rightKey) turnSpeed -= turnAccel * (fastTurn ? 3 : 1);
+
+            turnSpeed *= turnFriction;
+            playerAngle += turnSpeed;
+        }
+        //option2
+        let targetAngle = 0;
+        let lastKeyTime = 0;
+        let fastTurn = false;
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                let now = performance.now();
+                if (now - lastKeyTime < 250) {
+                    fastTurn = true; // double tap
+                }
+                lastKeyTime = now;
+
+                if (e.key === "ArrowLeft") targetAngle += fastTurn ? 0.15 : 0.05;
+                if (e.key === "ArrowRight") targetAngle -= fastTurn ? 0.15 : 0.05;
+            }
+        });
+
+        function updateRotation() {
+            playerAngle += (targetAngle - playerAngle) * 0.1;
+        }
+        */
+
+        //rotate player
+        if (playerMoveAngle) {
+            playerAngle += 0.03 * playerMoveAngle;
+        }
+
+        //map identifier for stuff
         for (var row = 0; row < MAP_SIZE; row++) {
             for (var col = 0; col < MAP_SIZE; col++) {
                 var square = row * MAP_SIZE + col;
@@ -112,7 +213,6 @@
         ctx.moveTo(playerMapX, playerMapY);
         ctx.lineTo(playerMapX + Math.sin(playerAngle) * 10, playerMapY + Math.cos(playerAngle) * 10);
         ctx.stroke();
-
 
         //render fps
         ctx.fillStyle = 'white';
