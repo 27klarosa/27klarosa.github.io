@@ -12,6 +12,7 @@
 <canvas id="screen"></canvas>
 
 <script>
+    //canvas
     const canvas = document.getElementById('screen');
     const ctx = canvas.getContext('2d');
 
@@ -132,8 +133,7 @@
         let rowY = Math.floor(nextY / MAP_SCALE);
         let indexY = rowY * MAP_SIZE + colY;
         if (MAP[indexY] === 0) playerY = nextY;
-
-        /*
+        
         //option1
         let turnSpeed = 0;
         const turnAccel = 0.002;
@@ -158,34 +158,11 @@
             turnSpeed *= turnFriction;
             playerAngle += turnSpeed;
         }
-            
-        //option2
-        let targetAngle = 0;
-        let lastKeyTime = 0;
-        let fastTurn = false;
 
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-                let now = performance.now();
-                if (now - lastKeyTime < 250) {
-                    fastTurn = true; // double tap
-                }
-                lastKeyTime = now;
-
-                if (e.key === "ArrowLeft") targetAngle += fastTurn ? 0.15 : 0.05;
-                if (e.key === "ArrowRight") targetAngle -= fastTurn ? 0.15 : 0.05;
-            }
-        });
-
-        function updateRotation() {
-            playerAngle += (targetAngle - playerAngle) * 0.1;
-        }
-        */
-
-        //rotate player
-        if (playerMoveAngle) {
-            playerAngle += 0.03 * playerMoveAngle;
-        }
+        //rotate player option 2
+        // if (playerMoveAngle) {
+        //     playerAngle += 0.03 * playerMoveAngle;
+        // }
 
         //map identifier for stuff
         for (var row = 0; row < MAP_SIZE; row++) {
