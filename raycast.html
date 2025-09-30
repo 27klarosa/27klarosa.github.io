@@ -134,6 +134,7 @@
         let indexY = rowY * MAP_SIZE + colY;
         if (MAP[indexY] === 0) playerY = nextY;
         
+        /*
         //option1
         let turnSpeed = 0;
         const turnAccel = 0.002;
@@ -158,11 +159,12 @@
             turnSpeed *= turnFriction;
             playerAngle += turnSpeed;
         }
+            */
 
         //rotate player option 2
-        // if (playerMoveAngle) {
-        //     playerAngle += 0.03 * playerMoveAngle;
-        // }
+         if (playerMoveAngle) {
+             playerAngle += 0.03 * playerMoveAngle;
+         }
 
         //map identifier for stuff
         for (var row = 0; row < MAP_SIZE; row++) {
