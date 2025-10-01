@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="raycast.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+
+<canvas id="screen"></canvas>
+
+<script>
+    //canvas
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+
+    //FPS counter
+    const fps = 60;
+    const cycleDelay = Math.floor(1000 / fps);
+    var oldCycleTime = 0;
+    var cycleCount = 0;
+    var fps_rate = 'calculating...';
+
+    //map
+    const MAP_SIZE = 16;
+    const MAP_SCALE = 10;
+    const MAP_RANGE = MAP_SIZE * MAP_SCALE;
+    const MAP_SPEED = (MAP_SCALE / 2) / 10;
+    var MAP = [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    ]
+
+    //player
+    var playerX = MAP_SCALE + 20
+    var playerY = MAP_SCALE + 20
+    var playerAngle = Math.PI / 3
+    var playerMoveX = 0
+    var playerMoveY = 0
+    var playerMoveAngle = 0
+
+    //user movement input
+    let turnDirection = 0; // +1 for left, -1 for right
+
+    document.onkeydown = function (event) {
+        console.log(event.keyCode);
+        switch (event.keyCode) {
+            //
+            case 37: turnDirection = 1; break;
+            case 39: turnDirection = -1; break;
+            case 38: playerMoveX = 1; playerMoveY = 1; break;
+            case 40: playerMoveX = -1; playerMoveY = -1; break;
+        }
+    }
+
+    document.onkeyup = function (event) {
+        switch (event.keyCode) {
+            //
+            case 37: // Left
+                if (turnDirection === 1) turnDirection = 0; break;
+            case 39: // Right
+                if (turnDirection === -1) turnDirection = 0; break;
+            case 38: playerMoveX = 0; playerMoveY = 0; break;
+            case 40: playerMoveX = 0; playerMoveY = 0;
+        }
+    }
+
+    //camera
+    const DOUBLE_PI = Math.PI * 2; //360 degrees
+    const FOV = Math.PI / 3; //60 degrees
+
+    //screen settings
+    const WIDTH = 800, HALF_WIDTH = WIDTH / 2;
+    const HEIGHT = 550, HALF_HEIGHT = HEIGHT / 2;
+
+    //test variables for testing
+    let i = 0;
+    let preI = 0;
+
+    //game loop
+    function gameLoop() {
+        //fps counter
+        cycleCount++;
+        if (cycleCount >= fps) cycleCount = 0;
+        var startTime = Date.now();
+        var cycleTime = startTime - oldCycleTime;
+        oldCycleTime = startTime;
+        if (cycleCount % 60 == 0) fps_rate = Math.floor(1000 / cycleTime);
+
+        //resize
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        //update
+        ctx.fillStyle = 'Black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'White';
+        ctx.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
+
+        //draw screen?
+        var mapOffsetX = Math.floor(canvas.width / 2 - MAP_RANGE / 2)
+        var mapOffsetY = Math.floor(canvas.height / 2 - MAP_RANGE / 2)
+
+        //move player
+        var playerOffsetX = Math.sin(playerAngle) * MAP_SPEED
+        var playerOffsetY = Math.cos(playerAngle) * MAP_SPEED
+
+        // future position
+        var nextX = playerX + playerOffsetX * playerMoveX;
+        var nextY = playerY + playerOffsetY * playerMoveY;
+
+        // X axis 
+        let colX = Math.floor(nextX / MAP_SCALE);
+        let rowX = Math.floor(playerY / MAP_SCALE);
+        let indexX = rowX * MAP_SIZE + colX;
+        if (MAP[indexX] === 0) playerX = nextX;
+
+        // Y axis
+        let colY = Math.floor(playerX / MAP_SCALE);
+        let rowY = Math.floor(nextY / MAP_SCALE);
+        let indexY = rowY * MAP_SIZE + colY;
+        if (MAP[indexY] === 0) playerY = nextY;
+
+        //Angle
+        const turnSpeed = Math.PI / 90;
+        if (turnDirection === 1) {
+            playerAngle += turnSpeed;
+        } else if (turnDirection === -1) {
+            playerAngle -= turnSpeed;
+        }
+
+        //map 2d for minimap
+        for (var row = 0; row < MAP_SIZE; row++) {
+            for (var col = 0; col < MAP_SIZE; col++) {
+                var square = row * MAP_SIZE + col;
+                if (MAP[square] == 1) {
+                    ctx.fillStyle = '#555';
+                    ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+                } else {
+                    ctx.fillStyle = '#aaa';
+                    ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+                }
+            }
+        }
+        //draw 2d player
+        var playerMapX = playerX + mapOffsetX;
+        var playerMapY = playerY + mapOffsetY;
+
+        ctx.fillStyle = 'red';
+        ctx.beginPath();
+        ctx.arc(playerMapX, playerMapY, 3, 0, DOUBLE_PI);
+        ctx.fill();
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(playerMapX, playerMapY);
+        ctx.lineTo(playerMapX + Math.sin(playerAngle) * 10, playerMapY + Math.cos(playerAngle) * 10);
+        ctx.stroke();
+
+        //render fps
+        ctx.fillStyle = 'white';
+        ctx.font = '30px Arial';
+        ctx.fillText('FPS:' + fps_rate, 0, 40)
+
+        //looping the ???
+        setTimeout(gameLoop, cycleDelay);
+    }
+    gameLoop();
+
+</script>
+
+</html>
