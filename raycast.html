@@ -55,31 +55,37 @@
     var playerMoveY = 0
     var playerMoveAngle = 0
 
-    //user input
+    //user movement input
+    let turnDirection = 0; // +1 for left, -1 for right
+
     document.onkeydown = function (event) {
         console.log(event.keyCode);
         switch (event.keyCode) {
             //
+            case 37: turnDirection = 1; break;
+            case 39: turnDirection = -1; break;
+            case 38: playerMoveX = 1; playerMoveY = 1; break;
             case 40: playerMoveX = -1; playerMoveY = -1; break;
-            case 38: playerMoveX = +1; playerMoveY = +1; break;
-            case 37: playerMoveAngle = 1; break;
-            case 39: playerMoveAngle = -1; break;
         }
     }
 
     document.onkeyup = function (event) {
         switch (event.keyCode) {
             //
-            case 40: playerMoveX = 0; playerMoveY = 0; break;
+            case 37: // Left
+                if (turnDirection === 1) turnDirection = 0; break;
+            case 39: // Right
+                if (turnDirection === -1) turnDirection = 0; break;
             case 38: playerMoveX = 0; playerMoveY = 0; break;
-            case 37: playerMoveAngle = 0; break;
-            case 39: playerMoveAngle = 0; break;
+            case 40: playerMoveX = 0; playerMoveY = 0;
         }
     }
 
-
     //camera
-    const DOUBLE_PI = Math.PI * 2;
+    const DOUBLE_PI = Math.PI * 2; //360 degrees
+    const FOV = Math.PI / 3; //60 degrees
+    const HALF_FOV = FOV / 2;
+    const STEP_ANGLE = FOV / WIDTH;
 
     //screen settings
     const WIDTH = 800, HALF_WIDTH = WIDTH / 2;
@@ -109,12 +115,11 @@
         ctx.fillStyle = 'White';
         ctx.fillRect(canvas.width / 2 - HALF_WIDTH, canvas.height / 2 - HALF_HEIGHT, WIDTH, HEIGHT);
 
-        //draw map
+        //draw screen?
         var mapOffsetX = Math.floor(canvas.width / 2 - MAP_RANGE / 2)
         var mapOffsetY = Math.floor(canvas.height / 2 - MAP_RANGE / 2)
 
         //move player
-        //and more
         var playerOffsetX = Math.sin(playerAngle) * MAP_SPEED
         var playerOffsetY = Math.cos(playerAngle) * MAP_SPEED
 
@@ -133,40 +138,16 @@
         let rowY = Math.floor(nextY / MAP_SCALE);
         let indexY = rowY * MAP_SIZE + colY;
         if (MAP[indexY] === 0) playerY = nextY;
-        
-        /*
-        //option1
-        let turnSpeed = 0;
-        const turnAccel = 0.002;
-        const turnFriction = 0.9;
-        let lastKeyTime = 0;
-        let fastTurn = false;
 
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-                let now = performance.now();
-                if (now - lastKeyTime < 250) {
-                    fastTurn = true; // double tap detected
-                }
-                lastKeyTime = now;
-            }
-        });
-
-        function updateRotation(leftKey, rightKey) {
-            if (leftKey) turnSpeed += turnAccel * (fastTurn ? 3 : 1);
-            if (rightKey) turnSpeed -= turnAccel * (fastTurn ? 3 : 1);
-
-            turnSpeed *= turnFriction;
+        //Angle
+        const turnSpeed = Math.PI / 90;
+        if (turnDirection === 1) {
             playerAngle += turnSpeed;
+        } else if (turnDirection === -1) {
+            playerAngle -= turnSpeed;
         }
-            */
 
-        //rotate player option 2
-         if (playerMoveAngle) {
-             playerAngle += 0.03 * playerMoveAngle;
-         }
-
-        //map identifier for stuff
+        //map 2d for minimap
         for (var row = 0; row < MAP_SIZE; row++) {
             for (var col = 0; col < MAP_SIZE; col++) {
                 var square = row * MAP_SIZE + col;
@@ -179,7 +160,7 @@
                 }
             }
         }
-        //draw player
+        //draw 2d player
         var playerMapX = playerX + mapOffsetX;
         var playerMapY = playerY + mapOffsetY;
 
@@ -194,10 +175,29 @@
         ctx.lineTo(playerMapX + Math.sin(playerAngle) * 10, playerMapY + Math.cos(playerAngle) * 10);
         ctx.stroke();
 
+        //raycasting
+        var currentAngle = playerAngle
+        var rayStartX = Math.floor(playerX / MAP_SCALE) * MAP_SCALE;
+        var rayStartY = Math.floor(playerY / MAP_SCALE) * MAP_SCALE;
+        var currentSIN = Math.sin(currentAngle); currentSIN = currentSin ? currentSIN : 0.000001;
+        var currentCOS = Math.cos(currentAngle); currentCOS = currentCOS ? currentCOS : 0.000001;
+
+        //vertical lines
+        var rayEndX, rayEndY, rayDirectionX, verticalDepth;
+        if (currentSIN > 0) { rayEndX = rayStartX + MAP_SCALE; rayDirectionX = 1; }
+        else { rayEndX = rayStartX; rayDirectionX = -1; }
+        for (var offset = 0; offset < MAP_RANGE; offset += MAP_SCALE) {
+            verticalDepth = (rayEndX - playerX) / currentSIN;
+            rayEndY = playerY + verticalDepth * currentCOS;
+            var mapTargetX = MAth.floor(rayEndX / MAP_SCALE);
+            var mapTargetY = Math.floor(rayEndY / MAP_SCALE);
+        }
+
         //render fps
         ctx.fillStyle = 'white';
         ctx.font = '30px Arial';
         ctx.fillText('FPS:' + fps_rate, 0, 40)
+
 
         /*
         test fps thing
