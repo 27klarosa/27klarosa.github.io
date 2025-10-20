@@ -51,7 +51,7 @@
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]
 
-    //player
+    //player momvement
     var playerX = MAP_SCALE + 20
     var playerY = MAP_SCALE + 20
     var playerAngle = Math.PI / 3
@@ -62,27 +62,50 @@
     //user movement input
     let turnDirection = 0; // +1 for left, -1 for right
 
+    const keysPressed = {
+        37: false, // Left arrow
+        38: false, // Up arrow
+        39: false, // Right arrow
+        40: false  // Down arrow
+    };
+
     document.onkeydown = function (event) {
-        while (document.onkeydown) 
-        console.log(event.keyCode);
-        switch (event.keyCode) {
-            //
-            case 37: turnDirection = 1; break;
-            case 39: turnDirection = -1; break;
-            case 38: playerMoveX = 1; playerMoveY = 1; break;
-            case 40: playerMoveX = -1; playerMoveY = -1; break;
+        if (event.keyCode in keysPressed) {
+            keysPressed[event.keyCode] = true;
+            updateMovement();
+        }
+    };
+
+    document.onkeyup = function (event) {
+        if (event.keyCode in keysPressed) {
+            keysPressed[event.keyCode] = false;
+            updateMovement();
         }
     }
 
-    document.onkeyup = function (event) {
-        switch (event.keyCode) {
-            //
-            case 37: // Left
-                if (turnDirection === 1) turnDirection = 0; break;
-            case 39: // Right
-                if (turnDirection === -1) turnDirection = 0; break;
-            case 38: playerMoveX = 0; playerMoveY = 0; break;
-            case 40: playerMoveX = 0; playerMoveY = 0;
+    function updateMovement() {
+        // Reset movement
+        playerMoveX = 0;
+        playerMoveY = 0;
+        turnDirection = 0;
+
+        // Apply logic based on current key states
+        switch (true) {
+            case keysPressed[37]: // Left
+                turnDirection = 1;
+                break;
+            case keysPressed[39]: // Right
+                turnDirection = -1;
+                break;
+        }
+
+        switch (true) {
+            case keysPressed[38]: // Up
+                playerMoveY = 1;
+                break;
+            case keysPressed[40]: // Down
+                playerMoveY = -1;
+                break;
         }
     }
 
@@ -225,8 +248,8 @@
             currentAngle -= STEP_ANGLE;
         }
 
-         //map 2D
-         for (var row = 0; row < MAP_SIZE; row++) {
+        //map 2D
+        for (var row = 0; row < MAP_SIZE; row++) {
             for (var col = 0; col < MAP_SIZE; col++) {
                 var square = row * MAP_SIZE + col;
                 if (MAP[square] == 1) {
