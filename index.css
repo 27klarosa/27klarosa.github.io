@@ -3,6 +3,7 @@
      --card: #0b1220;
      --muted: #9aa4b2;
      --accent: #6ee7b7;
+     --secondary: #906ee7;
      --glass: rgba(255, 255, 255, 0.03);
      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
  }
@@ -123,6 +124,12 @@
      border: 0
  }
 
+ .btn.secondary {
+     background: var(--secondary);
+     border: 0;
+     color: #042022;
+ }
+
  .profile {
      padding: 18px;
      border-radius: 12px;
@@ -136,14 +143,15 @@
  .avatar {
      width: 120px;
      height: 120px;
-     border-radius: 14px;
-     background: linear-gradient(135deg, #0ea5a4, #60a5fa);
+     border-radius: 70px;
      display: flex;
      align-items: center;
      justify-content: center;
      font-weight: 700;
      color: #021018;
      font-size: 1.1rem;
+     background-position: center;
+     background-size: contain;
  }
 
  .meta {
