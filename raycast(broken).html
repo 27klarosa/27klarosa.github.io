@@ -44,14 +44,14 @@
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
         1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]
 
-    //player
+    //player momvement
     var playerX = MAP_SCALE + 20
     var playerY = MAP_SCALE + 20
     var playerAngle = Math.PI / 3
@@ -62,26 +62,50 @@
     //user movement input
     let turnDirection = 0; // +1 for left, -1 for right
 
+    const keysPressed = {
+        37: false, // Left arrow
+        38: false, // Up arrow
+        39: false, // Right arrow
+        40: false  // Down arrow
+    };
+
     document.onkeydown = function (event) {
-        console.log(event.keyCode);
-        switch (event.keyCode) {
-            //
-            case 37: turnDirection = 1; break;
-            case 39: turnDirection = -1; break;
-            case 38: playerMoveX = 1; playerMoveY = 1; break;
-            case 40: playerMoveX = -1; playerMoveY = -1; break;
+        if (event.keyCode in keysPressed) {
+            keysPressed[event.keyCode] = true;
+            updateMovement();
+        }
+    };
+
+    document.onkeyup = function (event) {
+        if (event.keyCode in keysPressed) {
+            keysPressed[event.keyCode] = false;
+            updateMovement();
         }
     }
 
-    document.onkeyup = function (event) {
-        switch (event.keyCode) {
-            //
-            case 37: // Left
-                if (turnDirection === 1) turnDirection = 0; break;
-            case 39: // Right
-                if (turnDirection === -1) turnDirection = 0; break;
-            case 38: playerMoveX = 0; playerMoveY = 0; break;
-            case 40: playerMoveX = 0; playerMoveY = 0;
+    function updateMovement() {
+        // Reset movement
+        playerMoveX = 0;
+        playerMoveY = 0;
+        turnDirection = 0;
+
+        // Apply logic based on current key states
+        switch (true) {
+            case keysPressed[37]: // Left
+                turnDirection = 1;
+                break;
+            case keysPressed[39]: // Right
+                turnDirection = -1;
+                break;
+        }
+
+        switch (true) {
+            case keysPressed[38]: // Up
+                playerMoveY = 1;
+                break;
+            case keysPressed[40]: // Down
+                playerMoveY = -1;
+                break;
         }
     }
 
@@ -119,6 +143,10 @@
         var mapOffsetX = Math.floor(canvas.width / 2 - MAP_RANGE / 2)
         var mapOffsetY = Math.floor(canvas.height / 2 - MAP_RANGE / 2)
 
+        //draw 2d player
+        var playerMapX = playerX + mapOffsetX;
+        var playerMapY = playerY + mapOffsetY;
+
         //move player
         var playerOffsetX = Math.sin(playerAngle) * MAP_SPEED
         var playerOffsetY = Math.cos(playerAngle) * MAP_SPEED
@@ -147,34 +175,6 @@
             playerAngle -= turnSpeed;
         }
 
-        //map 2d for minimap
-        for (var row = 0; row < MAP_SIZE; row++) {
-            for (var col = 0; col < MAP_SIZE; col++) {
-                var square = row * MAP_SIZE + col;
-                if (MAP[square] == 1) {
-                    ctx.fillStyle = '#555';
-                    ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
-                } else {
-                    ctx.fillStyle = '#aaa';
-                    ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
-                }
-            }
-        }
-        //draw 2d player
-        var playerMapX = playerX + mapOffsetX;
-        var playerMapY = playerY + mapOffsetY;
-
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.arc(playerMapX, playerMapY, 3, 0, DOUBLE_PI);
-        ctx.fill();
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(playerMapX, playerMapY);
-        ctx.lineTo(playerMapX + Math.sin(playerAngle) * 10, playerMapY + Math.cos(playerAngle) * 10);
-        ctx.stroke();
-
         //raycasting
         var currentAngle = playerAngle + HALF_FOV;
         var rayStartX = Math.floor(playerX / MAP_SCALE) * MAP_SCALE;
@@ -202,17 +202,6 @@
                 rayEndX += rayDirectionX * MAP_SCALE;
             }
 
-            /*draw ray
-            ctx.strokeStyle = 'Green';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(playerMapX, playerMapY);
-            ctx.lineTo(rayEndX + mapOffsetX, rayEndY + mapOffsetY);
-            ctx.stroke();
-            */
-            // temp endX and endY 
-            var tempX = rayEndX; tempY = rayEndY;
-
             //horizontal lines
             var rayEndY, rayEndX, rayDirectionY, horizontalDepth;
             if (currentCOS > 0) { rayEndY = rayStartY + MAP_SCALE; rayDirectionY = 1; }
@@ -229,21 +218,60 @@
                 rayEndY += rayDirectionY * MAP_SCALE;
             }
 
+            /*draw ray
+            ctx.strokeStyle = 'Green';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(playerMapX, playerMapY);
+            ctx.lineTo(rayEndX + mapOffsetX, rayEndY + mapOffsetY);
+            ctx.stroke();
+            // temp endX and endY 
+            var tempX = rayEndX; tempY = rayEndY;
+            */
+
+            /*
             var endX = verticalDepth < horizontalDepth ? tempX : rayEndX;
             var endY = verticalDepth < horizontalDepth ? tempY : rayEndY;
 
-            //draw ray
+            //draw ray FOV
             ctx.strokeStyle = 'Yellow';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(playerMapX, playerMapY);
             ctx.lineTo(endX + mapOffsetX, endY + mapOffsetY);
             ctx.stroke();
+            */
+
+            //render 3D projection
 
             //update angle
             currentAngle -= STEP_ANGLE;
         }
 
+        //map 2D
+        for (var row = 0; row < MAP_SIZE; row++) {
+            for (var col = 0; col < MAP_SIZE; col++) {
+                var square = row * MAP_SIZE + col;
+                if (MAP[square] == 1) {
+                    ctx.fillStyle = '#555';
+                    ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+                } else {
+                    ctx.fillStyle = '#aaa';
+                    ctx.fillRect(mapOffsetX + col * MAP_SCALE, mapOffsetY + row * MAP_SCALE, MAP_SCALE, MAP_SCALE);
+                }
+            }
+        }
+
+        ctx.fillStyle = 'red';
+        ctx.beginPath();
+        ctx.arc(playerMapX, playerMapY, 3, 0, DOUBLE_PI);
+        ctx.fill();
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(playerMapX, playerMapY);
+        ctx.lineTo(playerMapX + Math.sin(playerAngle) * 10, playerMapY + Math.cos(playerAngle) * 10);
+        ctx.stroke();
 
         //render fps
         ctx.fillStyle = 'white';
